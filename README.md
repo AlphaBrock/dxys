@@ -1,4 +1,4 @@
-一个将微信丁香医生的数据(新型冠状病毒 2019-nCoV)部分挪到telegram上的小玩意，[@dxys_bot](https://t.me/dxys_bot)
+一个将微信丁香医生的数据(新型冠状病毒 2019-nCoV)部分挪到telegram上，[@dxys_bot](https://t.me/dxys_bot)
 
 ### 功能
 
@@ -9,6 +9,13 @@ news - 查看最近5条新闻
 rumors - 查看发布的辟谣信息，用法：/rumors 不带参数默认最近5条 或者 /rumors 5/all 带参数获取指定条数
 area - 查看区域统计人数，用法：/area 中国或者/area 全球 或者 /area 广东省
 ```
+
+### 截图
+
+![image.png](https://i.loli.net/2020/02/03/TWG3Ici4xPBZfdC.png)
+
+![image.png](https://i.loli.net/2020/02/03/74IbpLXg5tzOYr9.png)
+![image.png](https://i.loli.net/2020/02/03/PoCSWYf8ed9q4LN.png)
 
 ### 部署环境
 
