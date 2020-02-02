@@ -1,5 +1,5 @@
 # Telegram BOT API
-TOKEN = '843263057:AAG5CF-W_K-MuBeybQdwUPq0TIUNeVyzM_M'
+TOKEN = ''
 
 # API接口
 DXYS_BK = 'https://lab.isaaclin.cn'
