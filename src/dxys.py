@@ -46,7 +46,7 @@ def check_value(v):
     text = json.loads(resp.text)
     province = text['results']
     if v in province:
-        return True
+        return True, province
     else:
         return False, province
 
@@ -60,6 +60,7 @@ def overall():
         for item in text['results']:
             virus = item.get('virus')
             infectSource = item.get('infectSource')
+            passWay = item.get('passWay')
             confirmedCount = item.get('confirmedCount')
             suspectedCount = item.get('suspectedCount')
             curedCount = item.get('curedCount')
@@ -68,7 +69,7 @@ def overall():
             updateTime = item.get('updateTime')
             format_time = time.localtime(updateTime / 1000)
             _t = time.strftime("%Y-%m-%d %H:%M:%S", format_time)
-            msg = '更新时间：' + _t + '\n' + virus + '\n' + "感染源：" + infectSource + '\n' + '确诊病例：' + str(
+            msg = '更新时间：' + _t + '\n' + '病毒名称：' + virus + '\n' + "感染源    ：" + infectSource + '\n' + "传播途径：" + passWay + '\n' + '确诊病例：' + str(
                 confirmedCount) + '\n' + '疑似病例：' + str(suspectedCount) + '\n' + '治愈人数：' + str(
                 curedCount) + '\n' + '死亡人数：' + str(deadCount) + '\n' + dailyPic
     return msg
