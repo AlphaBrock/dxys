@@ -85,12 +85,12 @@ def bot_area(message):
     elif length > 1:
         text = message.text.split(' ')[1]
         status, provinceName = dxys.check_value(text)
-        if status is True or '中国' or '全球' in text:
-            table = dxys.area(text)
-            bot.send_message(message.chat.id, table, parse_mode='markdown')
-        else:
+        if status is False:
             bot.send_message(message.chat.id, '输入省份有误，参考如下：\n', parse_mode='Markdown')
             bot.send_message(message.chat.id, '%s' % provinceName, parse_mode='Markdown')
+        else:
+            table = dxys.area(text)
+            bot.send_message(message.chat.id, table, parse_mode='markdown')
 
 
 if __name__ == '__main__':
