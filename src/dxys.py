@@ -4,6 +4,7 @@ import requests
 import json
 import time
 from prettytable import PrettyTable
+from tabulate import tabulate
 
 URL = config.DXYS
 URL_BK = config.DXYS_BK
@@ -52,7 +53,7 @@ def check_value(v):
 
 
 def overall():
-    global msg
+    global msg, img
     over_url = URL + '/nCoV/api/overall'
     resp = requests.request("GET", over_url, headers=headers, data=payload)
     text = json.loads(resp.text)
@@ -71,8 +72,10 @@ def overall():
             _t = time.strftime("%Y-%m-%d %H:%M:%S", format_time)
             msg = '更新时间：' + _t + '\n' + '病毒名称：' + virus + '\n' + "感染源    ：" + infectSource + '\n' + "传播途径：" + passWay + '\n' + '确诊病例：' + str(
                 confirmedCount) + '\n' + '疑似病例：' + str(suspectedCount) + '\n' + '治愈人数：' + str(
-                curedCount) + '\n' + '死亡人数：' + str(deadCount) + '\n' + dailyPic
-    return msg
+                curedCount) + '\n' + '死亡人数：' + str(deadCount)
+            response = requests.request("GET", dailyPic)
+            img = response.content
+    return msg, img
 
 
 def news():
@@ -133,6 +136,7 @@ def area(info):
     _area.padding_width = 1
     _area.sortby = '确诊'
     _area.reversesort = True
+    print(_area)
     return _area
 
 

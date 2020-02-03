@@ -19,20 +19,21 @@ def bot_start(message):
 def bot_help(message):
     bot.send_chat_action(message.chat.id, 'typing')
     bot.send_message(message.chat.id,
-                     "我能帮你查看此时疫情情况\n"
+                     "我能帮你查看新型冠状病毒 2019-nCoV疫情情况\n"
                      "**⚠数据均来源于丁香医生⚠**\n"
                      "help - 查看帮助\n"
                      "overall - 查看概览\n"
                      "news - 查看最近10条新闻\n"
                      "rumors - 查看发布的辟谣信息，用法：/rumors 不带参数默认最近5条 或者 /rumors 5/all 带参数获取指定条数\n"
-                     "area - 查看区域统计人数，用法：/area 中国或者/area 全球\n", parse_mode='Markdown')
+                     "area - 查看区域统计人数，用法：/area 中国或者/area 全球(只支持国内省，直辖市与自治区)\n", parse_mode='Markdown')
 
 
 @bot.message_handler(commands=['overall'])
 def bot_overall(message):
-    msg = dxys.overall().encode('utf-8')
+    msg, img = dxys.overall()
     bot.send_chat_action(message.chat.id, 'typing')
     bot.send_message(message.chat.id, msg)
+    bot.send_photo(message.chat.id, img)
 
 
 @bot.message_handler(commands=['news'])

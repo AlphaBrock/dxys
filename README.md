@@ -4,10 +4,10 @@
 
 ```
 help - 查看帮助
-overall - 查看汇总人数
+overall - 查看概览
 news - 查看最近5条新闻
 rumors - 查看发布的辟谣信息，用法：/rumors 不带参数默认最近5条 或者 /rumors 5/all 带参数获取指定条数
-area - 查看区域统计人数，用法：/area 中国或者/area 全球 或者 /area 广东省
+area - 查看区域统计人数，用法：/area 中国或者/area 全球 或者 /area 广东省(只支持国内省，直辖市与自治区)
 ```
 
 ### 截图
