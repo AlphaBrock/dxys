@@ -52,7 +52,7 @@ class Database:
     def delete_chat_id(self, param):
         sql_cmd = "DELETE FROM sub_list WHERE chat_id=?"
         _, count = self.run_query(sql_cmd, (param,))
-        return count
+        return _
 
 
 if __name__ == '__main__':

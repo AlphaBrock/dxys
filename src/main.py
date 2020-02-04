@@ -9,8 +9,6 @@ import threading
 from db import Database
 from apscheduler.schedulers.background import BackgroundScheduler
 
-# from apscheduler.schedulers.blocking import BlockingScheduler
-
 TOKEN = config.TOKEN
 bot = telebot.TeleBot(TOKEN)
 
@@ -152,7 +150,7 @@ def region_sub(message):
 def region_unsub(message):
     bot.send_chat_action(message.chat.id, 'typing')
     status = (Database().delete_chat_id(message.chat.id))
-    if status == 1:
+    if len(status) == 0:
         bot.send_message(message.chat.id, '取消订阅成功')
     else:
         bot.send_message(message.chat.id, '未查询到当前用户的订阅')
