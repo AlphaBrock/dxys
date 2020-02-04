@@ -53,29 +53,32 @@ def check_value(v):
 
 
 def overall():
-    global msg, img
+    global msg, dailyPics
     over_url = URL + '/nCoV/api/overall'
     resp = requests.request("GET", over_url, headers=headers, data=payload)
     text = json.loads(resp.text)
     if 'results' in text:
         for item in text['results']:
-            virus = item.get('virus')
-            infectSource = item.get('infectSource')
-            passWay = item.get('passWay')
+            note1 = item.get('note1')
+            note2 = item.get('note2')
+            note3 = item.get('note3')
             confirmedCount = item.get('confirmedCount')
+            confirmedIncr = item.get('confirmedIncr')
             suspectedCount = item.get('suspectedCount')
+            suspectedIncr = item.get('suspectedIncr')
+            seriousCount = item.get('seriousCount')
+            seriousIncr = item.get('seriousIncr')
             curedCount = item.get('curedCount')
+            curedIncr = item.get('curedIncr')
             deadCount = item.get('deadCount')
-            dailyPic = item.get('dailyPic')
+            deadIncr = item.get('deadIncr')
+            dailyPics = item.get('dailyPic')
+            remark3 = item.get('remark3')
             updateTime = item.get('updateTime')
             format_time = time.localtime(updateTime / 1000)
             _t = time.strftime("%Y-%m-%d %H:%M:%S", format_time)
-            msg = '更新时间：' + _t + '\n' + '病毒名称：' + virus + '\n' + "感染源    ：" + infectSource + '\n' + "传播途径：" + passWay + '\n' + '确诊病例：' + str(
-                confirmedCount) + '\n' + '疑似病例：' + str(suspectedCount) + '\n' + '治愈人数：' + str(
-                curedCount) + '\n' + '死亡人数：' + str(deadCount)
-            response = requests.request("GET", dailyPic)
-            img = response.content
-    return msg, img
+            msg = '更新时间：' + _t + '\n' + note1 + '\n' + note2 + '\n' + note3 + '\n' + remark3 + '\n' + '确诊病例：' + str(confirmedCount) + '   较昨日+' + str(confirmedIncr) + '\n' + '疑似病例：' + str(suspectedCount) + '   较昨日+' + str(suspectedIncr) + '\n' + '重症病例：' + str(seriousCount) + '   较昨日+' + str(seriousIncr) + '\n' + '治愈人数：' + str(curedCount) + '   较昨日+' + str(curedIncr) + '\n' + '死亡人数：' + str(deadCount) + '   较昨日+' + str(deadIncr)
+    return msg, dailyPics
 
 
 def news():

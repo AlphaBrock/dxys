@@ -4,6 +4,7 @@ import config
 import dxys
 import telebot
 import time
+import requests
 
 TOKEN = config.TOKEN
 bot = telebot.TeleBot(TOKEN)
@@ -30,10 +31,13 @@ def bot_help(message):
 
 @bot.message_handler(commands=['overall'])
 def bot_overall(message):
-    msg, img = dxys.overall()
+    msg, dailyPics = dxys.overall()
     bot.send_chat_action(message.chat.id, 'typing')
     bot.send_message(message.chat.id, msg)
-    bot.send_photo(message.chat.id, img)
+    for item in range(len(dailyPics.split(','))):
+        response = requests.request("GET", dailyPics.split(',')[item])
+        img = response.content
+        bot.send_photo(message.chat.id, img)
 
 
 @bot.message_handler(commands=['news'])
@@ -89,7 +93,7 @@ def bot_area(message):
         if '中国' or '全球' in text or status is True:
             table = dxys.area(text)
             bot.send_message(message.chat.id, table, parse_mode='markdown')
-        else:
+        elif status is False:
             bot.send_message(message.chat.id, '输入省份有误，参考如下：\n', parse_mode='Markdown')
             bot.send_message(message.chat.id, '%s' % provinceName, parse_mode='Markdown')
 
