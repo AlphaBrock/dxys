@@ -4,7 +4,6 @@ import requests
 import json
 import time
 from prettytable import PrettyTable
-from tabulate import tabulate
 
 URL = config.DXYS
 URL_BK = config.DXYS_BK
@@ -42,7 +41,7 @@ def is_number(s):
 
 
 def check_value(v):
-    area_url = URL + '/nCoV/api/provinceName'
+    area_url = URL_BK + '/nCoV/api/provinceName'
     resp = requests.request("GET", area_url, headers=headers, data=payload)
     text = json.loads(resp.text)
     province = text['results']
@@ -82,21 +81,21 @@ def overall():
 
 
 def news():
-    news_url = URL + '/nCoV/api/news?num=5'
+    news_url = URL_BK + '/nCoV/api/news?num=5'
     resp = requests.request("GET", news_url, headers=headers, data=payload)
     text = json.loads(resp.text)
     return text
 
 
 def rumors(num):
-    news_url = URL + '/nCoV/api/rumors?num=%s' % num
+    news_url = URL_BK + '/nCoV/api/rumors?num=%s' % num
     resp = requests.request("GET", news_url, headers=headers, data=payload)
     text = json.loads(resp.text)
     return text
 
 
 def area(info):
-    area_url = URL + '/nCoV/api/area?latest=1'
+    area_url = URL_BK + '/nCoV/api/area?latest=1'
     resp = requests.request("GET", area_url, headers=headers, data=payload)
     text = json.loads(resp.text)
     _area = PrettyTable(['地区', '确诊', '死亡', '治愈'])
@@ -118,20 +117,31 @@ def area(info):
                     deadCount = item.get('deadCount')
                     curedCount = item.get('curedCount')
                     _area.add_row([provinceShortName, confirmedCount, deadCount, curedCount])
+    elif '市' in info:
+        region = info.split('市')[0]
+        try:
+            for item in text['results']:
+                for i in range(len(item['cities'])):
+                    if item['cities'][i].get('cityName') == region:
+                        confirmedCount = item['cities'][i].get('confirmedCount')
+                        deadCount = item['cities'][i].get('deadCount')
+                        curedCount = item['cities'][i].get('curedCount')
+                        _area.add_row([region, confirmedCount, deadCount, curedCount])
+                    else:
+                        pass
+        except Exception as e:
+            pass
     else:
-        area_url = URL + '/nCoV/api/area?latest=1&province=%s' % info
+        area_url = URL_BK + '/nCoV/api/area?latest=1&province=%s' % info
         resp = requests.request("GET", area_url, headers=headers, data=payload)
         text = json.loads(resp.text)
-        if len(text['results'][0]['cities']) < 1:
-            pass
-        else:
-            citys = text['results'][0]['cities']
-            for item in range(len(citys)):
-                cityName = citys[item].get('cityName')
-                confirmedCount = citys[item].get('confirmedCount')
-                deadCount = citys[item].get('deadCount')
-                curedCount = citys[item].get('curedCount')
-                _area.add_row([cityName, confirmedCount, deadCount, curedCount])
+        citys = text['results'][0]['cities']
+        for item in range(len(citys)):
+            cityName = citys[item].get('cityName')
+            confirmedCount = citys[item].get('confirmedCount')
+            deadCount = citys[item].get('deadCount')
+            curedCount = citys[item].get('curedCount')
+            _area.add_row([cityName, confirmedCount, deadCount, curedCount])
     _area.align['地区'] = 'l'
     _area.align['确诊'] = 'r'
     _area.align['死亡'] = 'r'
@@ -144,6 +154,5 @@ def area(info):
 
 
 if __name__ == '__main__':
-    text = '广东省'
+    text = '广州市'
     area(text)
-    # news()
