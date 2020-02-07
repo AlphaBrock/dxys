@@ -20,7 +20,6 @@ class myThread(threading.Thread):  # 继承父类threading.Thread
         self.chat_id = chat_id
 
     def run(self):  # 把要执行的代码写到run函数里面 线程在创建后会直接运行run函数
-        print(self.city)
         table = dxys.area(self.city)
         bot.send_message(self.chat_id, '您的订阅城市(%s)统计人数如下：' % self.city)
         bot.send_message(self.chat_id, table)
@@ -29,7 +28,6 @@ class myThread(threading.Thread):  # 继承父类threading.Thread
 @bot.message_handler(commands=['start'])
 def bot_start(message):
     me = bot.get_me()
-    print(message.chat.id)
     bot.send_chat_action(message.chat.id, 'typing')
     bot.send_message(message.chat.id, '欢迎使用丁香医生 ~\n要不戳这里试试看 /help')
     bot.send_message(message.chat.id, me)
@@ -125,12 +123,15 @@ def region_sub(message):
     if len(message.text.split(' ')) == 1:
         bot.send_message(message.chat.id, '输入省市格式，例：`/sub 广东省或者/sub 广州市或者/sub 中国 或者/sub 全球`', parse_mode='Markdown')
     else:
-        text = message.text.split(' ')[1]
+        _t = message.text.split(' ')[1]
+        text = _t.split('@')[0]
+        _i = str(message.chat.id) + ',' + text
         data = Database().query_chat_id()
         region = []
         for i in range(len(data)):
-            region.append(data[i][2])
-        if text in region:
+            _m = data[i][1] + ',' + data[i][2]
+            region.append(_m)
+        if _i in region:
             bot.send_message(message.chat.id, '你已订阅过%s' % text)
         else:
             status, provinceName = dxys.check_value(text)
@@ -164,7 +165,6 @@ def sub_schedule():
         for i in range(len(data)):
             region = [data[i][1], data[i][2]]
             regions.append(region)
-        print(regions, type(regions))
         for j in range(len(regions)):
             city = regions[j][0]
             chat_id = regions[j][1]
@@ -180,8 +180,8 @@ def sub_schedule():
 if __name__ == '__main__':
     try:
         sched = BackgroundScheduler(daemon=True)
-        sched.add_job(lambda: sub_schedule(), 'cron', hour=8, minute=30)
+        sched.add_job(lambda: sub_schedule(), 'cron', hour=23, minute=9)
         sched.start()
+        bot.polling(none_stop=True)
     except Exception as e:
         print(e)
-    bot.polling(none_stop=True)
