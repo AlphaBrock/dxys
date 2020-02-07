@@ -1,4 +1,5 @@
 pyTelegramBotAPI
 requests
 prettytable
+ptable
 apscheduler
