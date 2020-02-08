@@ -10,22 +10,62 @@ import threading
 from db import Database
 from apscheduler.schedulers.background import BackgroundScheduler
 from prettytable import PrettyTable
-from telebot import util
 
 TOKEN = config.TOKEN
 bot = telebot.TeleBot(TOKEN)
 
 
-class myThread(threading.Thread):  # 继承父类threading.Thread
+class subThread(threading.Thread):
+    """
+    地区订阅多线程从接口查数据
+    """
+
     def __init__(self, chat_id, city):
         threading.Thread.__init__(self)
         self.city = city
         self.chat_id = chat_id
 
-    def run(self):  # 把要执行的代码写到run函数里面 线程在创建后会直接运行run函数
+    def run(self):
+        """
+        把要执行的代码写到run函数里面 线程在创建后会直接运行run函数
+        """
         table = dxys.area(self.city)
         bot.send_message(self.chat_id, '您的订阅城市(%s)统计人数如下：' % self.city)
         bot.send_message(self.chat_id, table)
+
+
+class commThread(threading.Thread):
+    """
+    地区订阅多线程从接口查数据
+    """
+
+    def __init__(self, info, province, city, district, _area, location, coordinate, certain, comm):
+        threading.Thread.__init__(self)
+        self.info = info
+        self.province = province
+        self.city = city
+        self.district = district
+        self._area = _area
+        self.location = location
+        self.coordinate = coordinate
+        self.certain = certain
+        self.comm = comm
+
+    def run(self):
+        """
+        把要执行的代码写到run函数里面 线程在创建后会直接运行run函数
+        """
+        _coordinate = community_quick_check.get_location(self.location)
+        distance = community_quick_check.get_distance(_coordinate, self.coordinate)
+        if self.certain == '-1':
+            sum_certain = '-'
+        else:
+            sum_certain = self.certain
+        if type(self.info) == dict:
+            self._area.add_row([self.comm, sum_certain, distance])
+        elif type(self.info) == list:
+            self._area.add_row([self.comm, sum_certain, distance])
+            self._area.title = '%s%s%s' % (self.province, self.city, self.district)
 
 
 @bot.message_handler(commands=['start'])
@@ -44,7 +84,7 @@ def bot_help(message):
                      "**⚠数据均来源于丁香医生⚠**\n"
                      "/help - 查看帮助\n"
                      "/overall - 查看概览\n"
-                     "/news - 查看最近10条新闻\n"
+                     "/news - 查看最近5条新闻\n"
                      "/rumors - 查看发布的辟谣信息，用法：/rumors 不带参数默认最近5条 或者 /rumors 5/all 带参数获取指定条数\n"
                      "/area - 查看区域统计人数，用法：/area 中国或者/area 全球(只支持国内省，直辖市与自治区)\n"
                      "/sub - 订阅城市/省份统计人数，用法：/sub 广东省或者/sub 广州市(只支持国内省，直辖市与自治区)\n"
@@ -173,11 +213,11 @@ def sub_schedule():
         for j in range(len(regions)):
             city = regions[j][0]
             chat_id = regions[j][1]
-            thread = myThread(city, chat_id)
+            thread = subThread(city, chat_id)
             thread.start()
             threads.append(thread)
-            for t in threads:
-                t.join()
+        for t in threads:
+            t.join()
     except Exception as e:
         print(e)
 
@@ -200,12 +240,11 @@ def community_search(message):
         _area.align['与我距离'] = 'r'
         _area.padding_width = 1
         _area.sortby = '与我距离'
-        _area.reversesort = False
-
+        threads = []
         status = community_quick_check.check_param(province, city, district)
         if status is False:
             bot.send_message(message.chat.id,
-                             '输入格式有误，参考：`/com_search 北京市 北京市 全部 南雄市宾阳小区 或者 /com_search 广东省 广州市 荔湾区 南雄市宾阳小区`',
+                             '请确保输入的省份/城市/社区 格式正确，参考：`/com_search 北京市 北京市 全部 南雄市宾阳小区 或者 /com_search 广东省 广州市 荔湾区 南雄市宾阳小区`\n省份后缀含有省，直辖市后缀为市\n城市后缀为市，直辖市则和省份一样\n社区后缀为区\n最后一位是居住地，用于评估与病源地的直线距离',
                              parse_mode='Markdown')
         else:
             try:
@@ -223,13 +262,11 @@ def community_search(message):
                             lat = i.get('lat')
                             certain = i.get('cnt_sum_certain')
                             coordinate = lng + ',' + lat
-                            _coordinate = community_quick_check.get_location(location)
-                            distance = community_quick_check.get_distance(_coordinate, coordinate)
-                            if certain == '-1':
-                                sum_certain = '-'
-                            else:
-                                sum_certain = certain
-                            _area.add_row([comm, sum_certain, distance])
+                            thread = commThread(info, province, city, district, _area, location, coordinate, certain, comm)
+                            thread.start()
+                            threads.append(thread)
+                        for t in threads:
+                            t.join()
                         bot.send_message(message.chat.id, _area)
 
                 elif type(info) == list:
@@ -239,14 +276,12 @@ def community_search(message):
                         lat = i.get('lat')
                         certain = i.get('cnt_sum_certain')
                         coordinate = lng + ',' + lat
-                        _coordinate = community_quick_check.get_location(location)
-                        distance = community_quick_check.get_distance(_coordinate, coordinate)
-                        if certain == '-1':
-                            sum_certain = '-'
-                        else:
-                            sum_certain = certain
-                        _area.add_row([comm, sum_certain, distance])
-                        _area.title = '%s' % district
+                        thread = commThread(info, province, city, district, _area, location, coordinate, certain, comm)
+                        thread.start()
+                        threads.append(thread)
+                    for t in threads:
+                        t.join()
+                        print(t.getName())
                     bot.send_message(message.chat.id, _area)
             except Exception as e:
                 pass
